@@ -3,12 +3,16 @@
 Solo course project (Topic 4). Design spec:
 `docs/superpowers/specs/2026-11-24-deepfake-interaction-system-design.md`.
 Phase 1 plan: `docs/superpowers/plans/2026-11-24-phase1-face-detection-landmarks.md`.
+Phase 2 plan: `docs/superpowers/plans/2026-11-24-phase2-face-swap.md`.
 
-## Current status: Phase 1
+## Current status: Phase 2
 
-Upload a photo, detect facial landmarks (MediaPipe FaceLandmarker) and head
-pose (yaw/pitch/roll via OpenCV `solvePnP`), see the result overlaid in the
-browser.
+- **Landmark detection:** upload a photo, detect facial landmarks (MediaPipe
+  FaceLandmarker) and head pose (yaw/pitch/roll via OpenCV `solvePnP`), see
+  the result overlaid in the browser.
+- **Face swap:** upload a source face and a target photo, get back the
+  target with the source's face swapped in (InsightFace `inswapper_128`),
+  always with a visible "AI GENERATED" disclosure watermark.
 
 ## Setup (desktop or laptop — same steps on both)
 
@@ -36,8 +40,11 @@ python scripts/download_models.py
 ```
 
 `scripts/download_models.py` fetches `models/weights/face_landmarker.task`
-(~3.7 MB) from Google's MediaPipe model zoo. It's git-ignored — run this once
-per machine, it won't come from `git clone`.
+(~3.7 MB) and `models/weights/inswapper_128.onnx` (~550 MB) — both
+git-ignored, run this once per machine, it won't come from `git clone`. The
+first `/swap` request on each machine will also trigger a separate, automatic
+~290 MB download of InsightFace's own `buffalo_l` model to `~/.insightface`
+— see `models/README.md` for details.
 
 ## Running tests
 
