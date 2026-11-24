@@ -1,5 +1,18 @@
 <!doctype html>
 <html lang="tr">
-<head><meta charset="utf-8"><title>Yüz Tespiti</title></head>
-<body><p>placeholder — Task 4'te değiştirilecek</p></body>
+<head>
+  <meta charset="utf-8">
+  <title>EEE 321 - Yüz Landmark Tespiti</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <h1>Yüz Tespiti &amp; Landmark Önizleme</h1>
+  <form id="upload-form">
+    <input type="file" id="image-input" name="image" accept="image/png, image/jpeg" required>
+    <button type="submit">Tespit Et</button>
+  </form>
+  <p id="status"></p>
+  <img id="result-image" alt="" hidden>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
 </html>
