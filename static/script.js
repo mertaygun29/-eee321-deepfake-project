@@ -15,8 +15,15 @@ form.addEventListener("submit", async (event) => {
   statusEl.textContent = "İşleniyor...";
   resultImage.hidden = true;
 
-  const response = await fetch("/detect", { method: "POST", body: formData });
-  const body = await response.json();
+  let response;
+  let body;
+  try {
+    response = await fetch("/detect", { method: "POST", body: formData });
+    body = await response.json();
+  } catch (err) {
+    statusEl.textContent = "Hata: sunucudan beklenmeyen bir yanıt geldi.";
+    return;
+  }
 
   if (!response.ok) {
     statusEl.textContent = `Hata: ${body.error}`;
@@ -49,8 +56,15 @@ swapForm.addEventListener("submit", async (event) => {
   swapStatusEl.textContent = "İşleniyor...";
   swapResultImage.hidden = true;
 
-  const response = await fetch("/swap", { method: "POST", body: formData });
-  const body = await response.json();
+  let response;
+  let body;
+  try {
+    response = await fetch("/swap", { method: "POST", body: formData });
+    body = await response.json();
+  } catch (err) {
+    swapStatusEl.textContent = "Hata: sunucudan beklenmeyen bir yanıt geldi.";
+    return;
+  }
 
   if (!response.ok) {
     swapStatusEl.textContent = `Hata: ${body.error}`;
@@ -60,4 +74,22 @@ swapForm.addEventListener("submit", async (event) => {
   swapStatusEl.textContent = "Yüz değiştirme tamamlandı.";
   swapResultImage.src = `data:image/png;base64,${body.swapped_image_png_base64}`;
   swapResultImage.hidden = false;
+});
+
+const swapInputsButton = document.getElementById("swap-inputs-button");
+
+swapInputsButton.addEventListener("click", () => {
+  const sourceInput = document.getElementById("source-input");
+  const targetInput = document.getElementById("target-input");
+
+  const sourceFiles = sourceInput.files;
+  const targetFiles = targetInput.files;
+
+  const newSourceFiles = new DataTransfer();
+  Array.from(targetFiles).forEach((file) => newSourceFiles.items.add(file));
+  sourceInput.files = newSourceFiles.files;
+
+  const newTargetFiles = new DataTransfer();
+  Array.from(sourceFiles).forEach((file) => newTargetFiles.items.add(file));
+  targetInput.files = newTargetFiles.files;
 });
