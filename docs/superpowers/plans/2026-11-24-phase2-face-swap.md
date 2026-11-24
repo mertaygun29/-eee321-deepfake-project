@@ -40,6 +40,13 @@ if both installed). This plan uses `CPUExecutionProvider` unconditionally on
 both machines. If a later phase needs heavier models where this matters,
 revisit then.
 
+**Also discovered during research:** `opencv-python==4.12.0.88` (pinned in
+Phase 1) caps `numpy<2.3.0`, which conflicts with the `numpy==2.5.5` pin
+needed to fix the Python 3.14 longdouble bug from Phase 1. Bumped to
+`opencv-python==5.1.0.95`, which only requires `numpy>=2` with no upper
+bound. Verified the full Phase 1 test suite and the InsightFace pipeline
+both still work against this version.
+
 **Also discovered during research:** InsightFace's own `buffalo_l` face
 analysis model is NOT part of our `scripts/download_models.py` — the
 `FaceAnalysis` class downloads it automatically (to `~/.insightface/models/`,
@@ -68,7 +75,7 @@ just means the very first `/swap` request on each machine will be slower
 ```
 flask==3.1.2
 mediapipe==1.2.3
-opencv-python==4.12.0.88
+opencv-python==5.1.0.95
 numpy==2.5.5
 pytest==8.4.2
 insightface==0.7.3

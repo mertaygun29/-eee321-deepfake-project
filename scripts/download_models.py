@@ -13,6 +13,13 @@ MODELS = {
         "https://storage.googleapis.com/mediapipe-models/face_landmarker/"
         "face_landmarker/float16/1/face_landmarker.task"
     ),
+    # Official InsightFace releases no longer host this file directly;
+    # this is the community mirror used by most face-swap projects (roop,
+    # ReActor, etc.) for an unauthenticated direct download.
+    "inswapper_128.onnx": (
+        "https://huggingface.co/ezioruan/inswapper_128.onnx/resolve/main/"
+        "inswapper_128.onnx"
+    ),
 }
 
 
