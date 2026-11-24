@@ -9,6 +9,7 @@ models/weights/
 *.onnx
 *.pt
 *.pth
+*.task
 
 # user-uploaded / generated content - privacy, never committed
 uploads/
