@@ -39,3 +39,25 @@ def test_detect_route_returns_landmarks_for_real_face(client):
     body = response.get_json()
     assert body["landmark_count"] == 478
     assert "annotated_image_png_base64" in body
+
+
+def test_swap_route_rejects_missing_images(client):
+    response = client.post("/swap", data={})
+    assert response.status_code == 400
+    assert "error" in response.get_json()
+
+
+@REQUIRES_FIXTURE
+def test_swap_route_returns_watermarked_image(client):
+    with open(FIXTURE_PATH, "rb") as source_file, open(FIXTURE_PATH, "rb") as target_file:
+        response = client.post(
+            "/swap",
+            data={
+                "source": (source_file, "source.jpg"),
+                "target": (target_file, "target.jpg"),
+            },
+            content_type="multipart/form-data",
+        )
+    assert response.status_code == 200
+    body = response.get_json()
+    assert "swapped_image_png_base64" in body
