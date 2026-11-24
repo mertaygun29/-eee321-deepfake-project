@@ -5,8 +5,13 @@ body {
   padding: 0 1rem;
 }
 
-#result-image {
+#result-image,
+#swap-result-image {
   max-width: 100%;
   margin-top: 1rem;
   border: 1px solid #ccc;
+}
+
+hr {
+  margin: 2rem 0;
 }
