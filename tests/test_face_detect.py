@@ -30,3 +30,17 @@ def test_detect_landmarks_finds_face():
     landmarks, annotated = detect_landmarks(image)
     assert len(landmarks) == 478  # 468 mesh points + 10 iris points
     assert annotated.shape == image.shape
+
+
+@REQUIRES_FIXTURE
+def test_estimate_head_pose_returns_three_angles():
+    import cv2
+
+    from face_detect import estimate_head_pose
+
+    image = cv2.imread(str(FIXTURE_PATH))
+    landmarks, _ = detect_landmarks(image)
+    yaw, pitch, roll = estimate_head_pose(landmarks, image.shape)
+    for angle in (yaw, pitch, roll):
+        assert isinstance(angle, float)
+        assert -180.0 <= angle <= 180.0

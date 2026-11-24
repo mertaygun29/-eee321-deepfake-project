@@ -24,6 +24,8 @@ form.addEventListener("submit", async (event) => {
   }
 
   statusEl.textContent = `${body.landmark_count} landmark noktası bulundu.`;
+  const pose = body.head_pose;
+  statusEl.textContent += ` (Yaw: ${pose.yaw.toFixed(1)}°, Pitch: ${pose.pitch.toFixed(1)}°, Roll: ${pose.roll.toFixed(1)}°)`;
   resultImage.src = `data:image/png;base64,${body.annotated_image_png_base64}`;
   resultImage.hidden = false;
 });

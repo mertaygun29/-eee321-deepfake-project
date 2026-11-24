@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 from flask import Flask, jsonify, render_template, request
 
-from face_detect import NoFaceDetectedError, detect_landmarks
+from face_detect import NoFaceDetectedError, detect_landmarks, estimate_head_pose
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # 10 MB upload limit
@@ -31,6 +31,8 @@ def detect():
     except NoFaceDetectedError as exc:
         return jsonify(error=str(exc)), 422
 
+    yaw, pitch, roll = estimate_head_pose(landmarks, image_bgr.shape)
+
     success, encoded = cv2.imencode(".png", annotated_bgr)
     if not success:
         return jsonify(error="Failed to encode result image."), 500
@@ -38,6 +40,7 @@ def detect():
     return jsonify(
         landmark_count=len(landmarks),
         annotated_image_png_base64=base64.b64encode(encoded.tobytes()).decode("ascii"),
+        head_pose={"yaw": yaw, "pitch": pitch, "roll": roll},
     )
 
 
