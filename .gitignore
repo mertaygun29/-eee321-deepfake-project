@@ -1,0 +1,22 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+
+# model weights - downloaded locally, never committed (size + license)
+models/weights/
+*.onnx
+*.pt
+*.pth
+
+# user-uploaded / generated content - privacy, never committed
+uploads/
+outputs/
+*.jpg
+*.jpeg
+*.png
+!docs/**/*.png
+
+.vscode/
+.idea/
