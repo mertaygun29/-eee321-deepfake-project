@@ -24,6 +24,7 @@
     <nav class="module-tabs" role="tablist">
       <button type="button" class="tab-button active" id="tab-detect" role="tab" aria-selected="true" aria-controls="panel-detect">01 — Tespit</button>
       <button type="button" class="tab-button" id="tab-swap" role="tab" aria-selected="false" aria-controls="panel-swap">02 — Değiştirme</button>
+      <button type="button" class="tab-button" id="tab-lipsync" role="tab" aria-selected="false" aria-controls="panel-lipsync">03 — Dudak Senkronu</button>
     </nav>
 
     <main>
@@ -87,6 +88,40 @@
           </figure>
           <figure>
             <div class="frame" id="swap-result-frame"><img id="swap-result-image" alt="" hidden></div>
+            <figcaption>Sonra</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="module" id="panel-lipsync" role="tabpanel" aria-labelledby="tab-lipsync module-3-title" hidden>
+        <div class="module-head">
+          <h2 id="module-3-title">Dudak Senkronu</h2>
+        </div>
+
+        <form id="lipsync-form" class="module-form">
+          <label>
+            Video (konuşan bir yüz)
+            <input type="file" id="lipsync-video-input" name="video" accept="video/mp4" required>
+          </label>
+          <label>
+            Ses dosyası
+            <input type="file" id="lipsync-audio-input" name="audio" accept="audio/wav, audio/mpeg" required>
+          </label>
+          <div class="form-actions">
+            <button type="submit">Senkronize Et</button>
+          </div>
+        </form>
+
+        <p id="lipsync-status" class="status-line"></p>
+        <dl id="lipsync-readout" class="readout" hidden></dl>
+
+        <div class="before-after">
+          <figure>
+            <div class="frame" id="lipsync-original-frame"><video id="lipsync-original-video" controls hidden></video></div>
+            <figcaption>Önce</figcaption>
+          </figure>
+          <figure>
+            <div class="frame" id="lipsync-result-frame"><video id="lipsync-result-video" controls hidden></video></div>
             <figcaption>Sonra</figcaption>
           </figure>
         </div>

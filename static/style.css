@@ -440,6 +440,12 @@ button.secondary:hover {
   object-fit: contain;
 }
 
+.frame video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 .frame.has-image {
   background: var(--void);
 }

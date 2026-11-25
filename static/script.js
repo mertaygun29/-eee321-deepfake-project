@@ -35,6 +35,7 @@ const tabButtons = document.querySelectorAll(".tab-button");
 const tabPanels = {
   "tab-detect": document.getElementById("panel-detect"),
   "tab-swap": document.getElementById("panel-swap"),
+  "tab-lipsync": document.getElementById("panel-lipsync"),
 };
 
 tabButtons.forEach((button) => {
@@ -279,4 +280,65 @@ swapInputsButton.addEventListener("click", () => {
   const newTargetFiles = new DataTransfer();
   Array.from(sourceFiles).forEach((file) => newTargetFiles.items.add(file));
   targetInput.files = newTargetFiles.files;
+});
+
+const lipsyncForm = document.getElementById("lipsync-form");
+const lipsyncStatusEl = document.getElementById("lipsync-status");
+const lipsyncReadoutEl = document.getElementById("lipsync-readout");
+const lipsyncOriginalFrame = document.getElementById("lipsync-original-frame");
+const lipsyncOriginalVideo = document.getElementById("lipsync-original-video");
+const lipsyncResultFrame = document.getElementById("lipsync-result-frame");
+const lipsyncResultVideo = document.getElementById("lipsync-result-video");
+let lipsyncOriginalObjectUrl = null;
+
+function showVideo(videoEl, frameEl, src) {
+  videoEl.src = src;
+  videoEl.hidden = false;
+  frameEl.classList.add("has-image");
+}
+
+lipsyncForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const videoInput = document.getElementById("lipsync-video-input");
+  const audioInput = document.getElementById("lipsync-audio-input");
+  if (!videoInput.files.length || !audioInput.files.length) {
+    return;
+  }
+  const videoFile = videoInput.files[0];
+
+  if (lipsyncOriginalObjectUrl) {
+    URL.revokeObjectURL(lipsyncOriginalObjectUrl);
+  }
+  lipsyncOriginalObjectUrl = URL.createObjectURL(videoFile);
+  showVideo(lipsyncOriginalVideo, lipsyncOriginalFrame, lipsyncOriginalObjectUrl);
+
+  const formData = new FormData();
+  formData.append("video", videoFile);
+  formData.append("audio", audioInput.files[0]);
+
+  lipsyncStatusEl.textContent = "İşleniyor... bu biraz uzun sürebilir.";
+  setReadout(lipsyncReadoutEl, []);
+  lipsyncResultVideo.hidden = true;
+  lipsyncResultFrame.classList.remove("has-image");
+
+  let response;
+  let body;
+  try {
+    response = await fetch("/lipsync", { method: "POST", body: formData });
+    body = await response.json();
+  } catch (err) {
+    lipsyncStatusEl.textContent = "Hata: sunucudan beklenmeyen bir yanıt geldi.";
+    return;
+  }
+
+  if (!response.ok) {
+    lipsyncStatusEl.textContent = `Hata: ${body.error}`;
+    return;
+  }
+
+  lipsyncStatusEl.textContent = "Dudak senkronu tamamlandı.";
+  setReadout(lipsyncReadoutEl, [
+    ["SÜRE", `${body.processing_time_seconds.toFixed(2)}s`],
+  ]);
+  showVideo(lipsyncResultVideo, lipsyncResultFrame, body.result_url);
 });
