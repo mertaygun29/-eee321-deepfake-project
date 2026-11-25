@@ -1,11 +1,12 @@
 import base64
+import time
 
 import cv2
 import numpy as np
 from flask import Flask, jsonify, render_template, request
 
 from face_detect import NoFaceDetectedError, detect_landmarks, estimate_head_pose
-from face_swap import swap_faces
+from face_swap import compute_identity_similarity, swap_faces
 from watermark import add_disclosure_watermark
 
 app = Flask(__name__)
@@ -28,12 +29,14 @@ def detect():
     if image_bgr is None:
         return jsonify(error="Could not decode image. Use PNG or JPEG."), 400
 
+    start = time.perf_counter()
     try:
         landmarks, annotated_bgr = detect_landmarks(image_bgr)
     except NoFaceDetectedError as exc:
         return jsonify(error=str(exc)), 422
 
     yaw, pitch, roll = estimate_head_pose(landmarks, image_bgr.shape)
+    elapsed = time.perf_counter() - start
 
     success, encoded = cv2.imencode(".png", annotated_bgr)
     if not success:
@@ -43,6 +46,7 @@ def detect():
         landmark_count=len(landmarks),
         annotated_image_png_base64=base64.b64encode(encoded.tobytes()).decode("ascii"),
         head_pose={"yaw": yaw, "pitch": pitch, "roll": roll},
+        processing_time_seconds=round(elapsed, 3),
     )
 
 
@@ -64,11 +68,14 @@ def swap():
     if source_bgr is None or target_bgr is None:
         return jsonify(error="Could not decode one of the images. Use PNG or JPEG."), 400
 
+    start = time.perf_counter()
     try:
         swapped_bgr = swap_faces(source_bgr, target_bgr)
     except NoFaceDetectedError as exc:
         return jsonify(error=str(exc)), 422
+    elapsed = time.perf_counter() - start
 
+    identity_similarity = compute_identity_similarity(source_bgr, swapped_bgr)
     watermarked_bgr = add_disclosure_watermark(swapped_bgr)
 
     success, encoded = cv2.imencode(".png", watermarked_bgr)
@@ -77,6 +84,8 @@ def swap():
 
     return jsonify(
         swapped_image_png_base64=base64.b64encode(encoded.tobytes()).decode("ascii"),
+        processing_time_seconds=round(elapsed, 3),
+        identity_similarity=identity_similarity,
     )
 
 
