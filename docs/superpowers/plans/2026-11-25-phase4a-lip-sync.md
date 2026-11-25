@@ -358,9 +358,13 @@ _REPO_DIR = _VENDOR_DIR / "Wav2Lip"
 _VENV_PYTHON = _VENDOR_DIR / ".venv" / "Scripts" / "python.exe"
 _CHECKPOINT_PATH = _REPO_DIR / "checkpoints" / "wav2lip_gan.pth"
 
+# fontfile is required: ffmpeg's drawtext falls back to fontconfig when
+# it's omitted, and fontconfig has no config file on a stock Windows
+# install, which crashes ffmpeg outright rather than erroring cleanly.
 _WATERMARK_FILTER = (
-    "drawtext=text='AI GENERATED':fontcolor=white:fontsize=24:"
-    "box=1:boxcolor=black@0.6:x=(w-text_w)/2:y=h-th-20"
+    "drawtext=text='AI GENERATED':fontfile='C\\:/Windows/Fonts/arial.ttf':"
+    "fontcolor=white:fontsize=24:box=1:boxcolor=black@0.6:"
+    "x=(w-text_w)/2:y=h-th-20"
 )
 
 
