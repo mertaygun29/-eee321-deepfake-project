@@ -17,6 +17,8 @@ outputs/
 *.jpg
 *.jpeg
 *.png
+*.mp4
+*.wav
 !docs/**/*.png
 
 .vscode/
