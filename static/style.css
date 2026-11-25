@@ -175,7 +175,7 @@ a {
 /* ---- Page shell ---- */
 
 .page {
-  max-width: 640px;
+  max-width: 760px;
   margin: 0 auto;
 }
 
@@ -387,7 +387,7 @@ button.secondary:hover {
 
 .before-after figure {
   margin: 0;
-  flex: 1 1 220px;
+  flex: 1 1 280px;
 }
 
 .before-after figcaption {
@@ -442,6 +442,23 @@ button.secondary:hover {
 
 .frame.has-image {
   background: var(--void);
+}
+
+.frame.has-image:hover {
+  border-color: var(--action);
+}
+
+.zoom-lens {
+  position: absolute;
+  width: 130px;
+  height: 130px;
+  border: 2px solid var(--action);
+  border-radius: 50%;
+  background-repeat: no-repeat;
+  box-shadow: 0 0 0 1px var(--void), 0 4px 16px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  z-index: 2;
+  display: none;
 }
 
 /* ---- Footer ---- */

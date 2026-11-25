@@ -71,6 +71,76 @@ function showImage(imgEl, frameEl, src) {
   frameEl.classList.add("has-image");
 }
 
+const ZOOM_FACTOR = 2.5;
+
+function getContainedImageRect(img, containerWidth, containerHeight) {
+  const naturalRatio = img.naturalWidth / img.naturalHeight;
+  const containerRatio = containerWidth / containerHeight;
+  let width;
+  let height;
+
+  if (naturalRatio > containerRatio) {
+    width = containerWidth;
+    height = containerWidth / naturalRatio;
+  } else {
+    height = containerHeight;
+    width = containerHeight * naturalRatio;
+  }
+
+  return {
+    width,
+    height,
+    offsetX: (containerWidth - width) / 2,
+    offsetY: (containerHeight - height) / 2,
+  };
+}
+
+function attachMagnifier(frameEl, imgEl) {
+  const lens = document.createElement("div");
+  lens.className = "zoom-lens";
+  frameEl.appendChild(lens);
+  const lensSize = 130;
+
+  function hideLens() {
+    lens.style.display = "none";
+    frameEl.style.cursor = "";
+  }
+
+  frameEl.addEventListener("mousemove", (event) => {
+    if (imgEl.hidden || !imgEl.naturalWidth) {
+      hideLens();
+      return;
+    }
+
+    const rect = frameEl.getBoundingClientRect();
+    const image = getContainedImageRect(imgEl, rect.width, rect.height);
+    const x = event.clientX - rect.left - image.offsetX;
+    const y = event.clientY - rect.top - image.offsetY;
+
+    if (x < 0 || y < 0 || x > image.width || y > image.height) {
+      hideLens();
+      return;
+    }
+
+    frameEl.style.cursor = "none";
+    lens.style.display = "block";
+
+    let lensX = image.offsetX + x - lensSize / 2;
+    let lensY = image.offsetY + y - lensSize / 2;
+    lensX = Math.max(0, Math.min(lensX, rect.width - lensSize));
+    lensY = Math.max(0, Math.min(lensY, rect.height - lensSize));
+    lens.style.left = `${lensX}px`;
+    lens.style.top = `${lensY}px`;
+
+    lens.style.backgroundImage = `url(${imgEl.src})`;
+    lens.style.backgroundSize = `${image.width * ZOOM_FACTOR}px ${image.height * ZOOM_FACTOR}px`;
+    lens.style.backgroundPosition =
+      `${-(x * ZOOM_FACTOR - lensSize / 2)}px ${-(y * ZOOM_FACTOR - lensSize / 2)}px`;
+  });
+
+  frameEl.addEventListener("mouseleave", hideLens);
+}
+
 const form = document.getElementById("upload-form");
 const statusEl = document.getElementById("status");
 const readoutEl = document.getElementById("readout");
@@ -79,6 +149,9 @@ const originalImage = document.getElementById("original-image");
 const resultFrame = document.getElementById("result-frame");
 const resultImage = document.getElementById("result-image");
 let originalImageObjectUrl = null;
+
+attachMagnifier(originalFrame, originalImage);
+attachMagnifier(resultFrame, resultImage);
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -136,6 +209,9 @@ const swapOriginalImage = document.getElementById("swap-original-image");
 const swapResultFrame = document.getElementById("swap-result-frame");
 const swapResultImage = document.getElementById("swap-result-image");
 let swapOriginalImageObjectUrl = null;
+
+attachMagnifier(swapOriginalFrame, swapOriginalImage);
+attachMagnifier(swapResultFrame, swapResultImage);
 
 swapForm.addEventListener("submit", async (event) => {
   event.preventDefault();
