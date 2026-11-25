@@ -74,4 +74,10 @@ def compute_identity_similarity(
     if not result_faces:
         return None
 
-    return float(np.dot(source_faces[0].normed_embedding, result_faces[0].normed_embedding))
+    # On a multi-face result, detection order isn't guaranteed to put the
+    # just-swapped face first, so compare against every detected face and
+    # keep the best match rather than assuming index 0 is the swapped one.
+    source_embedding = source_faces[0].normed_embedding
+    return max(
+        float(np.dot(source_embedding, face.normed_embedding)) for face in result_faces
+    )
