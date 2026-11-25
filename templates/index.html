@@ -1,137 +1,199 @@
 <!doctype html>
-<html lang="tr">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>EEE 321 · Yüz Sinyal Laboratuvarı</title>
+  <title>EEE 321 · Face Signal Lab</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <div class="page">
-    <header class="masthead">
-      <div class="masthead-row">
-        <h1>EEE 321 · Yüz Sinyal Laboratuvarı</h1>
-        <span class="status-dot" aria-hidden="true"></span>
-        <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Koyu temaya geç">☾</button>
+  <div class="layout">
+    <aside class="sidebar-left">
+      <div class="brand">
+        <div class="brand-row">
+          <h1>EEE 321 · Face Signal Lab</h1>
+          <span class="status-dot" aria-hidden="true"></span>
+        </div>
+        <p class="brand-sub">
+          A DSP demo pipeline built around face detection, landmark
+          extraction, face swap, and lip sync.
+        </p>
       </div>
-      <p class="masthead-sub">
-        Yüz tespiti, landmark çıkarımı ve yüz değiştirme üzerine kurulu bir
-        DSP demo hattı. İki modül, aynı boru hattının art arda gelen
-        aşamaları.
-      </p>
-    </header>
 
-    <nav class="module-tabs" role="tablist">
-      <button type="button" class="tab-button active" id="tab-detect" role="tab" aria-selected="true" aria-controls="panel-detect">01 — Tespit</button>
-      <button type="button" class="tab-button" id="tab-swap" role="tab" aria-selected="false" aria-controls="panel-swap">02 — Değiştirme</button>
-      <button type="button" class="tab-button" id="tab-lipsync" role="tab" aria-selected="false" aria-controls="panel-lipsync">03 — Dudak Senkronu</button>
-    </nav>
+      <nav class="module-nav" role="tablist">
+        <button type="button" class="nav-item active" id="tab-detect" role="tab" aria-selected="true" aria-controls="panel-detect">01 — Detect</button>
+        <button type="button" class="nav-item" id="tab-swap" role="tab" aria-selected="false" aria-controls="panel-swap">02 — Swap</button>
+        <button type="button" class="nav-item" id="tab-lipsync" role="tab" aria-selected="false" aria-controls="panel-lipsync">03 — Lip Sync</button>
+        <button type="button" class="nav-item nav-item-secondary" id="tab-models" role="tab" aria-selected="false" aria-controls="panel-models">Models</button>
+      </nav>
 
-    <main>
+      <div class="system-status">
+        <h3>System</h3>
+        <dl id="system-status-list" class="status-list"></dl>
+      </div>
+
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch to dark theme">☾</button>
+    </aside>
+
+    <main class="content">
       <section class="module" id="panel-detect" role="tabpanel" aria-labelledby="tab-detect module-1-title">
         <div class="module-head">
-          <h2 id="module-1-title">Yüz Tespiti &amp; Landmark</h2>
+          <h2 id="module-1-title">Face Detection &amp; Landmarks</h2>
         </div>
 
         <form id="upload-form" class="module-form">
           <label>
-            Fotoğraf
+            Photo
             <input type="file" id="image-input" name="image" accept="image/png, image/jpeg" required>
           </label>
           <div class="form-actions">
-            <button type="submit">Tespit Et</button>
+            <button type="submit">Detect</button>
           </div>
         </form>
 
         <p id="status" class="status-line"></p>
+        <div class="progress-bar" id="progress-detect" hidden><div class="progress-fill"></div></div>
         <dl id="readout" class="readout" hidden></dl>
 
         <div class="before-after">
           <figure>
             <div class="frame" id="original-frame"><img id="original-image" alt="" hidden></div>
-            <figcaption>Önce</figcaption>
+            <figcaption>Before</figcaption>
           </figure>
           <figure>
             <div class="frame" id="result-frame"><img id="result-image" alt="" hidden></div>
-            <figcaption>Sonra</figcaption>
+            <figcaption>After</figcaption>
           </figure>
         </div>
       </section>
 
       <section class="module" id="panel-swap" role="tabpanel" aria-labelledby="tab-swap module-2-title" hidden>
         <div class="module-head">
-          <h2 id="module-2-title">Yüz Değiştirme</h2>
+          <h2 id="module-2-title">Face Swap</h2>
         </div>
 
         <form id="swap-form" class="module-form">
           <label>
-            Kaynak yüz
+            Source face
             <input type="file" id="source-input" name="source" accept="image/png, image/jpeg" required>
           </label>
           <label>
-            Hedef görsel
+            Target image
             <input type="file" id="target-input" name="target" accept="image/png, image/jpeg" required>
           </label>
           <div class="form-actions">
-            <button type="button" id="swap-inputs-button" class="secondary">⇄ Yerini değiştir</button>
-            <button type="submit">Değiştir</button>
+            <button type="button" id="swap-inputs-button" class="secondary">⇄ Swap inputs</button>
+            <button type="submit">Swap</button>
           </div>
         </form>
 
         <p id="swap-status" class="status-line"></p>
+        <div class="progress-bar" id="progress-swap" hidden><div class="progress-fill"></div></div>
         <dl id="swap-readout" class="readout" hidden></dl>
 
         <div class="before-after">
           <figure>
             <div class="frame" id="swap-original-frame"><img id="swap-original-image" alt="" hidden></div>
-            <figcaption>Önce</figcaption>
+            <figcaption>Before</figcaption>
           </figure>
           <figure>
             <div class="frame" id="swap-result-frame"><img id="swap-result-image" alt="" hidden></div>
-            <figcaption>Sonra</figcaption>
+            <figcaption>After</figcaption>
           </figure>
         </div>
       </section>
 
       <section class="module" id="panel-lipsync" role="tabpanel" aria-labelledby="tab-lipsync module-3-title" hidden>
         <div class="module-head">
-          <h2 id="module-3-title">Dudak Senkronu</h2>
+          <h2 id="module-3-title">Lip Sync</h2>
         </div>
 
         <form id="lipsync-form" class="module-form">
           <label>
-            Video (konuşan bir yüz)
+            Video (a talking face)
             <input type="file" id="lipsync-video-input" name="video" accept="video/mp4" required>
           </label>
           <label>
-            Ses dosyası
+            Audio file
             <input type="file" id="lipsync-audio-input" name="audio" accept="audio/wav, audio/mpeg" required>
           </label>
           <div class="form-actions">
-            <button type="submit">Senkronize Et</button>
+            <button type="submit">Sync</button>
           </div>
         </form>
 
         <p id="lipsync-status" class="status-line"></p>
+        <div class="progress-bar" id="progress-lipsync" hidden><div class="progress-fill"></div></div>
         <dl id="lipsync-readout" class="readout" hidden></dl>
 
         <div class="before-after">
           <figure>
             <div class="frame" id="lipsync-original-frame"><video id="lipsync-original-video" controls hidden></video></div>
-            <figcaption>Önce</figcaption>
+            <figcaption>Before</figcaption>
           </figure>
           <figure>
             <div class="frame" id="lipsync-result-frame"><video id="lipsync-result-video" controls hidden></video></div>
-            <figcaption>Sonra</figcaption>
+            <figcaption>After</figcaption>
           </figure>
         </div>
       </section>
+
+      <section class="module" id="panel-models" role="tabpanel" aria-labelledby="tab-models module-4-title" hidden>
+        <div class="module-head">
+          <h2 id="module-4-title">Models Used</h2>
+        </div>
+
+        <div class="model-card">
+          <h3>MediaPipe FaceLandmarker <span class="model-tag">01 — Detect</span></h3>
+          <p>
+            Google's pretrained face-mesh model. Detects a face and
+            extracts 478 landmark points (eyes, eyebrows, nose, mouth,
+            jawline); head pose (yaw/pitch/roll) is then computed from
+            those points with OpenCV's <code>solvePnP</code>.
+          </p>
+        </div>
+
+        <div class="model-card">
+          <h3>InsightFace — buffalo_l &amp; inswapper_128 <span class="model-tag">02 — Swap</span></h3>
+          <p>
+            <code>buffalo_l</code> detects the face and extracts an
+            identity embedding; <code>inswapper_128</code> places that
+            identity onto the target photo's face realistically. The
+            similarity score is the cosine similarity between the
+            source and result face's embedding vectors.
+          </p>
+        </div>
+
+        <div class="model-card">
+          <h3>Wav2Lip <span class="model-tag">03 — Lip Sync</span></h3>
+          <p>
+            A model trained for audio-visual sync that regenerates the
+            mouth region in each video frame to match the given audio's
+            mel-spectrogram (Rudrabha/Wav2Lip, GAN variant). Runs in its
+            own virtual environment, isolated from this project's main
+            codebase.
+          </p>
+        </div>
+
+        <p class="model-note">
+          No model in this project was trained from scratch — every one
+          runs on ready-made, pretrained weights; this project's own
+          code only provides the interface and data flow connecting
+          them.
+        </p>
+      </section>
+
+      <footer class="disclosure">
+        The face-swap and lip-sync outputs this system produces are
+        <strong>synthetic</strong> and each one carries a visible
+        "AI GENERATED" watermark.
+      </footer>
     </main>
 
-    <footer class="disclosure">
-      Bu sistemin ürettiği yüz değiştirme çıktıları <strong>sentetiktir</strong>
-      ve her birinde görünür bir "AI GENERATED" filigranı bulunur.
-    </footer>
+    <aside class="sidebar-right">
+      <h3>Activity Log</h3>
+      <ol id="activity-log" class="activity-log"></ol>
+    </aside>
   </div>
 
   <script src="{{ url_for('static', filename='script.js') }}"></script>
