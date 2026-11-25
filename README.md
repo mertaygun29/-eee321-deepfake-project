@@ -4,15 +4,18 @@ Solo course project (Topic 4). Design spec:
 `docs/superpowers/specs/2026-11-24-deepfake-interaction-system-design.md`.
 Phase 1 plan: `docs/superpowers/plans/2026-11-24-phase1-face-detection-landmarks.md`.
 Phase 2 plan: `docs/superpowers/plans/2026-11-24-phase2-face-swap.md`.
+Phase 3 plan: `docs/superpowers/plans/2026-11-25-phase3-comparison-and-metrics.md`.
 
-## Current status: Phase 2
+## Current status: Phase 3
 
 - **Landmark detection:** upload a photo, detect facial landmarks (MediaPipe
   FaceLandmarker) and head pose (yaw/pitch/roll via OpenCV `solvePnP`), see
-  the result overlaid in the browser.
+  a before/after view in the browser with processing time.
 - **Face swap:** upload a source face and a target photo, get back the
   target with the source's face swapped in (InsightFace `inswapper_128`),
-  always with a visible "AI GENERATED" disclosure watermark.
+  always with a visible "AI GENERATED" disclosure watermark, shown
+  before/after with processing time and an identity-similarity score
+  (cosine similarity between the source face and the swapped result).
 
 ## Setup (desktop or laptop — same steps on both)
 
