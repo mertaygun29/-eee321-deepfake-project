@@ -115,11 +115,15 @@ vendor\wav2lip\.venv\Scripts\python.exe -c "import torch; print(torch.cuda.is_av
 
 ## Run it
 
+Every time you open a new terminal (the venv isn't active by default):
+
 ```powershell
+.venv\Scripts\Activate.ps1
 python app.py
 ```
 
-Open `http://127.0.0.1:5000/` in a browser.
+Wait for a line like `Running on http://127.0.0.1:5000`, then open that
+address in a browser. Stop the server with `Ctrl+C` in the terminal.
 
 ## Running tests
 
