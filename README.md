@@ -23,6 +23,16 @@ Phase 4a plan: `docs/superpowers/plans/2026-11-25-phase4a-lip-sync.md`.
   before/after with processing time. Needs one extra setup step — see
   below.
 
+## Prerequisites (both machines)
+
+- **Git** — `winget install -e --id Git.Git` if it's not already installed.
+- **Python 3.14** — `winget install -e --id Python.Python.3.14`. (Confirmed
+  working for every dependency in this project, including the separate
+  lip-sync venv below — the Python 3.12 fallback a few paragraphs down is
+  a defensive option, not something hit during development.)
+- **Restart your terminal** after installing either of the above, so `git`
+  and `py` are on `PATH`.
+
 ## Setup (desktop or laptop — same steps on both)
 
 ```powershell
@@ -32,16 +42,13 @@ py -3.14 -m venv .venv
 .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 python scripts/download_models.py
-python app.py
 ```
-
-Open `http://127.0.0.1:5000/` in a browser.
 
 If `pip install` fails to find a wheel for `mediapipe` or `opencv-python` on
 your Python version, install Python 3.12 instead and recreate the venv:
 
 ```powershell
-winget install Python.Python.3.12
+winget install -e --id Python.Python.3.12
 py -3.12 -m venv .venv
 .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
@@ -54,6 +61,10 @@ git-ignored, run this once per machine, it won't come from `git clone`. The
 first `/swap` request on each machine will also trigger a separate, automatic
 ~290 MB download of InsightFace's own `buffalo_l` model to `~/.insightface`
 — see `models/README.md` for details.
+
+At this point `python app.py` already works for the detect and swap tabs —
+the lip-sync tab needs the extra step below first, or it'll just show a
+clear "not set up yet" message instead of a result.
 
 ## Lip sync setup (one extra step, once per machine)
 
@@ -84,6 +95,14 @@ Wav2Lip (see `models/README.md` for why it's kept out of this repo).
    ```powershell
    vendor\wav2lip\.venv\Scripts\python.exe -m pip install torch==2.10.0
    ```
+
+## Run it
+
+```powershell
+python app.py
+```
+
+Open `http://127.0.0.1:5000/` in a browser.
 
 ## Running tests
 
