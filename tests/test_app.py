@@ -175,3 +175,14 @@ def test_max_content_length_admits_a_realistic_video_and_audio_pair():
 
     # 20 MB video + 10 MB audio, per the spec's size guidance — must fit.
     assert flask_app.config["MAX_CONTENT_LENGTH"] >= 30 * 1024 * 1024
+
+
+def test_oversized_upload_returns_json_413(client):
+    large_bytes = b"0" * (41 * 1024 * 1024)
+    data = {
+        "video": (io.BytesIO(large_bytes), "video.mp4"),
+        "audio": (io.BytesIO(b"small"), "audio.wav"),
+    }
+    response = client.post("/lipsync", data=data, content_type="multipart/form-data")
+    assert response.status_code == 413
+    assert "error" in response.get_json()

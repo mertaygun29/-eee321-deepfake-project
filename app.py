@@ -20,6 +20,11 @@ UPLOADS_DIR = pathlib.Path("uploads")
 OUTPUTS_DIR = pathlib.Path("outputs")
 
 
+@app.errorhandler(413)
+def handle_file_too_large(_error):
+    return jsonify(error="Uploaded files are too large (max 40 MB combined)."), 413
+
+
 @app.get("/")
 def index():
     return render_template("index.html")

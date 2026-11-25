@@ -77,6 +77,101 @@ def test_run_lip_sync_gives_a_specific_message_when_no_face_found(tmp_path, monk
     assert str(exc_info.value) == NO_FACE_MESSAGE
 
 
+def test_run_lip_sync_raises_when_inference_produces_no_output(tmp_path, monkeypatch):
+    import subprocess
+
+    import lip_sync
+
+    checkpoint = tmp_path / "checkpoint.pth"
+    checkpoint.write_bytes(b"fake")
+    fake_venv_python = tmp_path / "python.exe"
+    fake_venv_python.write_bytes(b"fake")
+    monkeypatch.setattr(lip_sync, "_CHECKPOINT_PATH", checkpoint)
+    monkeypatch.setattr(lip_sync, "_VENV_PYTHON", fake_venv_python)
+    monkeypatch.setattr(
+        subprocess,
+        "run",
+        lambda *a, **k: subprocess.CompletedProcess(a, returncode=0, stdout="", stderr=""),
+    )
+
+    with pytest.raises(RuntimeError):
+        run_lip_sync(tmp_path / "video.mp4", tmp_path / "audio.wav", tmp_path / "out.mp4")
+
+
+def test_run_lip_sync_raises_runtime_error_when_watermarking_fails(tmp_path, monkeypatch):
+    import subprocess
+
+    import lip_sync
+
+    checkpoint = tmp_path / "checkpoint.pth"
+    checkpoint.write_bytes(b"fake")
+    fake_venv_python = tmp_path / "python.exe"
+    fake_venv_python.write_bytes(b"fake")
+    monkeypatch.setattr(lip_sync, "_CHECKPOINT_PATH", checkpoint)
+    monkeypatch.setattr(lip_sync, "_VENV_PYTHON", fake_venv_python)
+
+    output_path = tmp_path / "out.mp4"
+    raw_output = output_path.with_name(output_path.stem + "_raw.mp4")
+    call_count = {"value": 0}
+
+    def fake_run(args, **kwargs):
+        call_count["value"] += 1
+        if call_count["value"] == 1:
+            raw_output.write_bytes(b"fake raw video")
+            return subprocess.CompletedProcess(args, returncode=0, stdout="", stderr="")
+        raise subprocess.CalledProcessError(1, args, stderr=b"ffmpeg exploded")
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+    with pytest.raises(RuntimeError):
+        run_lip_sync(tmp_path / "video.mp4", tmp_path / "audio.wav", output_path)
+    assert not raw_output.exists()  # cleaned up even though the watermark step failed
+
+
+def test_run_lip_sync_serializes_concurrent_calls(tmp_path, monkeypatch):
+    import subprocess
+    import threading
+    import time
+
+    import lip_sync
+
+    checkpoint = tmp_path / "checkpoint.pth"
+    checkpoint.write_bytes(b"fake")
+    fake_venv_python = tmp_path / "python.exe"
+    fake_venv_python.write_bytes(b"fake")
+    monkeypatch.setattr(lip_sync, "_CHECKPOINT_PATH", checkpoint)
+    monkeypatch.setattr(lip_sync, "_VENV_PYTHON", fake_venv_python)
+
+    counter_lock = threading.Lock()
+    active = {"value": 0}
+    max_active = {"value": 0}
+
+    def fake_run(*args, **kwargs):
+        with counter_lock:
+            active["value"] += 1
+            max_active["value"] = max(max_active["value"], active["value"])
+        time.sleep(0.05)
+        with counter_lock:
+            active["value"] -= 1
+        return subprocess.CompletedProcess(args, returncode=1, stdout="", stderr="boom")
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+    def call():
+        try:
+            run_lip_sync(tmp_path / "video.mp4", tmp_path / "audio.wav", tmp_path / "out.mp4")
+        except RuntimeError:
+            pass
+
+    threads = [threading.Thread(target=call) for _ in range(3)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+
+    assert max_active["value"] == 1
+
+
 @REQUIRES_WAV2LIP
 @REQUIRES_FIXTURES
 def test_run_lip_sync_produces_watermarked_output(tmp_path):

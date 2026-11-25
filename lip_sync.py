@@ -1,5 +1,6 @@
 import pathlib
 import subprocess
+import threading
 
 _VENDOR_DIR = pathlib.Path(__file__).parent / "vendor" / "wav2lip"
 _REPO_DIR = _VENDOR_DIR / "Wav2Lip"
@@ -25,6 +26,15 @@ class LipSyncUnavailableError(Exception):
     """Raised when the vendored Wav2Lip environment isn't set up yet."""
 
 
+# Wav2Lip's own inference.py always writes to a fixed path
+# (temp/result.avi) relative to its repo directory, regardless of which
+# request triggered it. Two concurrent /lipsync requests would otherwise
+# overwrite each other's intermediate file and one user could receive
+# another's video. Serializing here also avoids two GPU inference runs
+# competing for VRAM at once on a modest laptop GPU.
+_LOCK = threading.Lock()
+
+
 def run_lip_sync(
     video_path: pathlib.Path, audio_path: pathlib.Path, output_path: pathlib.Path
 ) -> None:
@@ -43,33 +53,40 @@ def run_lip_sync(
         )
 
     raw_output = output_path.with_name(output_path.stem + "_raw.mp4")
-    result = subprocess.run(
-        [
-            str(_VENV_PYTHON), "inference.py",
-            "--checkpoint_path", str(_CHECKPOINT_PATH),
-            "--face", str(video_path.resolve()),
-            "--audio", str(audio_path.resolve()),
-            "--outfile", str(raw_output.resolve()),
-        ],
-        cwd=str(_REPO_DIR),
-        capture_output=True,
-        text=True,
-    )
-    if result.returncode != 0:
-        if "Face not detected" in result.stderr:
-            raise RuntimeError(NO_FACE_MESSAGE)
-        raise RuntimeError(f"Wav2Lip inference failed:\n{result.stderr[-2000:]}")
 
-    try:
-        subprocess.run(
+    with _LOCK:
+        result = subprocess.run(
             [
-                "ffmpeg", "-y", "-i", str(raw_output),
-                "-vf", _WATERMARK_FILTER,
-                "-codec:a", "copy",
-                str(output_path),
+                str(_VENV_PYTHON), "inference.py",
+                "--checkpoint_path", str(_CHECKPOINT_PATH),
+                "--face", str(video_path.resolve()),
+                "--audio", str(audio_path.resolve()),
+                "--outfile", str(raw_output.resolve()),
             ],
-            check=True,
+            cwd=str(_REPO_DIR),
             capture_output=True,
+            text=True,
         )
-    finally:
-        raw_output.unlink(missing_ok=True)
+        if result.returncode != 0:
+            if "Face not detected" in result.stderr:
+                raise RuntimeError(NO_FACE_MESSAGE)
+            raise RuntimeError(f"Wav2Lip inference failed:\n{result.stderr[-2000:]}")
+
+        if not raw_output.exists():
+            raise RuntimeError("Wav2Lip did not produce an output file.")
+
+        try:
+            subprocess.run(
+                [
+                    "ffmpeg", "-y", "-i", str(raw_output),
+                    "-vf", _WATERMARK_FILTER,
+                    "-codec:a", "copy",
+                    str(output_path),
+                ],
+                check=True,
+                capture_output=True,
+            )
+        except (subprocess.CalledProcessError, OSError) as exc:
+            raise RuntimeError(f"Watermarking failed: {exc}") from exc
+        finally:
+            raw_output.unlink(missing_ok=True)
