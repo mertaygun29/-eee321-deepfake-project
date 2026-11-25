@@ -23,15 +23,32 @@ Phase 4a plan: `docs/superpowers/plans/2026-11-25-phase4a-lip-sync.md`.
   before/after with processing time. Needs one extra setup step — see
   below.
 
-## Prerequisites (both machines)
+## Prerequisites (do this first, on both machines)
 
-- **Git** — `winget install -e --id Git.Git` if it's not already installed.
-- **Python 3.14** — `winget install -e --id Python.Python.3.14`. (Confirmed
-  working for every dependency in this project, including the separate
-  lip-sync venv below — the Python 3.12 fallback a few paragraphs down is
-  a defensive option, not something hit during development.)
-- **Restart your terminal** after installing either of the above, so `git`
-  and `py` are on `PATH`.
+Install all three, in one go if none are present yet:
+
+```powershell
+winget install -e --id Git.Git
+winget install -e --id Python.Python.3.14
+winget install -e --id Gyan.FFmpeg
+```
+
+(Python 3.14 is confirmed working for every dependency in this project,
+including the separate lip-sync venv below — the Python 3.12 fallback a few
+paragraphs down is a defensive option, not something hit during
+development.)
+
+**Then close and reopen your terminal** — `winget` updates PATH, but an
+already-open terminal doesn't see that change. Verify in the *new* terminal:
+
+```powershell
+git --version
+py --version
+ffmpeg -version
+```
+
+All three should print a version, not "not recognized". Only move on once
+they do.
 
 ## Setup (desktop or laptop — same steps on both)
 
@@ -68,33 +85,33 @@ clear "not set up yet" message instead of a result.
 
 ## Lip sync setup (one extra step, once per machine)
 
-The lip-sync tab needs `ffmpeg` on `PATH` and a separately vendored copy of
-Wav2Lip (see `models/README.md` for why it's kept out of this repo).
+The lip-sync tab needs a separately vendored copy of Wav2Lip (see
+`models/README.md` for why it's kept out of this repo) — `ffmpeg` is already
+covered by Prerequisites above.
 
-1. Install ffmpeg:
+Run the setup script (safe to re-run; downloads ~415 MB + a ~2.9 GB CUDA
+build of `torch` into its own venv, so it takes a while the first time):
 
-   ```powershell
-   winget install -e --id Gyan.FFmpeg
-   ```
+```powershell
+python scripts/setup_lipsync.py
+```
 
-   **Restart your terminal after this** — PATH changes from `winget` don't
-   apply to an already-open shell. Verify with `ffmpeg -version` in the new
-   terminal before continuing.
+Then check whether the machine's GPU/driver actually supports the CUDA
+build that was just installed:
 
-2. Run the setup script (safe to re-run; downloads ~415 MB + a ~2.9 GB CUDA
-   build of `torch` into its own venv, so it takes a while the first time):
+```powershell
+vendor\wav2lip\.venv\Scripts\python.exe -c "import torch; print(torch.cuda.is_available())"
+```
 
-   ```powershell
-   python scripts/setup_lipsync.py
-   ```
+- Prints `True` → GPU is working, nothing else to do.
+- Prints `False` → run this fallback command once. It replaces the CUDA
+  build with a CPU-only one; Wav2Lip's own code already auto-detects and
+  uses whichever is installed, so no other change is needed — lip sync
+  will just run slower:
 
-   If the machine's GPU/driver doesn't support the CUDA build (`torch.cuda.is_available()`
-   prints `False` after setup), fall back to CPU-only — slower, but
-   Wav2Lip's own code already auto-detects and uses it:
-
-   ```powershell
-   vendor\wav2lip\.venv\Scripts\python.exe -m pip install torch==2.10.0
-   ```
+  ```powershell
+  vendor\wav2lip\.venv\Scripts\python.exe -m pip install torch==2.10.0
+  ```
 
 ## Run it
 
