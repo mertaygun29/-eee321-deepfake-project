@@ -26,6 +26,11 @@ class LipSyncUnavailableError(Exception):
     """Raised when the vendored Wav2Lip environment isn't set up yet."""
 
 
+def is_available() -> bool:
+    """Whether scripts/setup_lipsync.py has been run on this machine."""
+    return _VENV_PYTHON.exists() and _CHECKPOINT_PATH.exists()
+
+
 # Wav2Lip's own inference.py always writes to a fixed path
 # (temp/result.avi) relative to its repo directory, regardless of which
 # request triggered it. Two concurrent /lipsync requests would otherwise

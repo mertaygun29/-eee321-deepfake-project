@@ -1,6 +1,7 @@
 import base64
 import pathlib
 import re
+import shutil
 import time
 import uuid
 
@@ -10,6 +11,7 @@ from flask import Flask, jsonify, render_template, request, send_from_directory
 
 from face_detect import NoFaceDetectedError, detect_landmarks, estimate_head_pose
 from face_swap import compute_identity_similarity, swap_faces
+import lip_sync
 from lip_sync import NO_FACE_MESSAGE, LipSyncUnavailableError, run_lip_sync
 from watermark import add_disclosure_watermark
 
@@ -28,6 +30,16 @@ def handle_file_too_large(_error):
 @app.get("/")
 def index():
     return render_template("index.html")
+
+
+@app.get("/status")
+def status():
+    return jsonify(
+        mediapipe=True,
+        insightface=True,
+        wav2lip=lip_sync.is_available(),
+        ffmpeg=shutil.which("ffmpeg") is not None,
+    )
 
 
 @app.post("/detect")

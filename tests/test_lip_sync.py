@@ -2,7 +2,7 @@ import pathlib
 
 import pytest
 
-from lip_sync import NO_FACE_MESSAGE, LipSyncUnavailableError, run_lip_sync
+from lip_sync import NO_FACE_MESSAGE, LipSyncUnavailableError, is_available, run_lip_sync
 
 FIXTURE_VIDEO = pathlib.Path(__file__).parent / "fixtures" / "sample_talking.mp4"
 FIXTURE_AUDIO = pathlib.Path(__file__).parent / "fixtures" / "sample_speech.wav"
@@ -19,6 +19,13 @@ REQUIRES_FIXTURES = pytest.mark.skipif(
         "(both gitignored, add them locally)."
     ),
 )
+
+
+def test_is_available_false_when_checkpoint_missing(tmp_path, monkeypatch):
+    import lip_sync
+
+    monkeypatch.setattr(lip_sync, "_CHECKPOINT_PATH", tmp_path / "does-not-exist.pth")
+    assert is_available() is False
 
 
 def test_run_lip_sync_raises_when_wav2lip_not_set_up(tmp_path, monkeypatch):

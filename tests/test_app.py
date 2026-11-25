@@ -186,3 +186,13 @@ def test_oversized_upload_returns_json_413(client):
     response = client.post("/lipsync", data=data, content_type="multipart/form-data")
     assert response.status_code == 413
     assert "error" in response.get_json()
+
+
+def test_status_route_reports_component_availability(client):
+    response = client.get("/status")
+    assert response.status_code == 200
+    body = response.get_json()
+    assert body["mediapipe"] is True
+    assert body["insightface"] is True
+    assert isinstance(body["wav2lip"], bool)
+    assert isinstance(body["ffmpeg"], bool)
