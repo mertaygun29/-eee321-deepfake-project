@@ -10,7 +10,7 @@ from flask import Flask, jsonify, render_template, request, send_from_directory
 
 from face_detect import NoFaceDetectedError, detect_landmarks, estimate_head_pose
 from face_swap import compute_identity_similarity, swap_faces
-from lip_sync import LipSyncUnavailableError, run_lip_sync
+from lip_sync import NO_FACE_MESSAGE, LipSyncUnavailableError, run_lip_sync
 from watermark import add_disclosure_watermark
 
 app = Flask(__name__)
@@ -122,8 +122,13 @@ def lipsync():
             run_lip_sync(video_path, audio_path, output_path)
         except LipSyncUnavailableError as exc:
             return jsonify(error=str(exc)), 503
-        except RuntimeError:
-            return jsonify(error="Lip sync processing failed for this video/audio pair."), 500
+        except RuntimeError as exc:
+            app.logger.error("Lip sync failed: %s", exc)
+            message = (
+                NO_FACE_MESSAGE if str(exc) == NO_FACE_MESSAGE
+                else "Lip sync processing failed for this video/audio pair."
+            )
+            return jsonify(error=message), 500
         elapsed = time.perf_counter() - start
     finally:
         video_path.unlink(missing_ok=True)

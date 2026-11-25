@@ -2,7 +2,7 @@ import pathlib
 
 import pytest
 
-from lip_sync import LipSyncUnavailableError, run_lip_sync
+from lip_sync import NO_FACE_MESSAGE, LipSyncUnavailableError, run_lip_sync
 
 FIXTURE_VIDEO = pathlib.Path(__file__).parent / "fixtures" / "sample_talking.mp4"
 FIXTURE_AUDIO = pathlib.Path(__file__).parent / "fixtures" / "sample_speech.wav"
@@ -50,6 +50,31 @@ def test_run_lip_sync_raises_runtime_error_when_inference_fails(tmp_path, monkey
 
     with pytest.raises(RuntimeError):
         run_lip_sync(tmp_path / "video.mp4", tmp_path / "audio.wav", tmp_path / "out.mp4")
+
+
+def test_run_lip_sync_gives_a_specific_message_when_no_face_found(tmp_path, monkeypatch):
+    import subprocess
+
+    import lip_sync
+
+    checkpoint = tmp_path / "checkpoint.pth"
+    checkpoint.write_bytes(b"fake")
+    fake_venv_python = tmp_path / "python.exe"
+    fake_venv_python.write_bytes(b"fake")
+    monkeypatch.setattr(lip_sync, "_CHECKPOINT_PATH", checkpoint)
+    monkeypatch.setattr(lip_sync, "_VENV_PYTHON", fake_venv_python)
+    monkeypatch.setattr(
+        subprocess,
+        "run",
+        lambda *a, **k: subprocess.CompletedProcess(
+            a, returncode=1, stdout="",
+            stderr="ValueError: Face not detected! Ensure the video contains a face in all the frames.",
+        ),
+    )
+
+    with pytest.raises(RuntimeError) as exc_info:
+        run_lip_sync(tmp_path / "video.mp4", tmp_path / "audio.wav", tmp_path / "out.mp4")
+    assert str(exc_info.value) == NO_FACE_MESSAGE
 
 
 @REQUIRES_WAV2LIP

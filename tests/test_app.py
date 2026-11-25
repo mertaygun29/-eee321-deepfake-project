@@ -147,6 +147,24 @@ def test_lipsync_route_returns_500_when_processing_fails(client, monkeypatch):
     assert "error" in response.get_json()
 
 
+def test_lipsync_route_passes_through_the_no_face_message(client, monkeypatch):
+    import app as app_module
+    from lip_sync import NO_FACE_MESSAGE
+
+    def fake_run_lip_sync(video_path, audio_path, output_path):
+        raise RuntimeError(NO_FACE_MESSAGE)
+
+    monkeypatch.setattr(app_module, "run_lip_sync", fake_run_lip_sync)
+
+    data = {
+        "video": (io.BytesIO(b"fake video bytes"), "video.mp4"),
+        "audio": (io.BytesIO(b"fake audio bytes"), "audio.wav"),
+    }
+    response = client.post("/lipsync", data=data, content_type="multipart/form-data")
+    assert response.status_code == 500
+    assert response.get_json()["error"] == NO_FACE_MESSAGE
+
+
 def test_lipsync_result_route_rejects_path_traversal(client):
     response = client.get("/lipsync/result/..%2F..%2Fapp.py")
     assert response.status_code == 404

@@ -16,6 +16,11 @@ _WATERMARK_FILTER = (
 )
 
 
+NO_FACE_MESSAGE = (
+    "No face detected in the video. Make sure a face is visible in every frame."
+)
+
+
 class LipSyncUnavailableError(Exception):
     """Raised when the vendored Wav2Lip environment isn't set up yet."""
 
@@ -51,6 +56,8 @@ def run_lip_sync(
         text=True,
     )
     if result.returncode != 0:
+        if "Face not detected" in result.stderr:
+            raise RuntimeError(NO_FACE_MESSAGE)
         raise RuntimeError(f"Wav2Lip inference failed:\n{result.stderr[-2000:]}")
 
     try:
