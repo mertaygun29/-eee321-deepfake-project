@@ -23,13 +23,31 @@ function storeTheme(theme) {
   }
 }
 
-const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-applyTheme(getStoredTheme() || systemTheme);
+applyTheme(getStoredTheme() || "dark");
 
 themeToggle.addEventListener("click", () => {
   const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
   applyTheme(next);
   storeTheme(next);
+});
+
+const tabButtons = document.querySelectorAll(".tab-button");
+const tabPanels = {
+  "tab-detect": document.getElementById("panel-detect"),
+  "tab-swap": document.getElementById("panel-swap"),
+};
+
+tabButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    tabButtons.forEach((candidate) => {
+      const isActive = candidate === button;
+      candidate.classList.toggle("active", isActive);
+      candidate.setAttribute("aria-selected", String(isActive));
+    });
+    Object.entries(tabPanels).forEach(([id, panel]) => {
+      panel.hidden = id !== button.id;
+    });
+  });
 });
 
 function setReadout(dl, pairs) {

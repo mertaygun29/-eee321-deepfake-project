@@ -100,27 +100,35 @@
 /* ---- Tokens ---- */
 
 :root {
-  --paper: #eef3f8;
-  --surface: #ffffff;
-  --ink: #15222e;
-  --slate: #496174;
-  --line: #b7c8d6;
-  --blueprint: #2f5c7c;
-  --signal: #c27a1e;
-  --signal-ink: #5c3c0f;
-  color-scheme: light;
-}
-
-:root[data-theme="dark"] {
-  --paper: #10161c;
-  --surface: #171f27;
-  --ink: #e7edf2;
-  --slate: #93a3b1;
-  --line: #2b3744;
+  --paper: #0b1526;
+  --surface: #121f36;
+  --ink: #eaf0f8;
+  --slate: #8ca0ba;
+  --line: #24354f;
   --blueprint: #6fa8d6;
   --signal: #e2a23d;
   --signal-ink: #2a1c08;
+  --action: #2dd4bf;
+  --action-ink: #06211d;
+  --void: #05080e;
+  --grid-line: rgba(255, 255, 255, 0.05);
   color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  --paper: #f3f5f8;
+  --surface: #ffffff;
+  --ink: #0e1a2b;
+  --slate: #5b6b7d;
+  --line: #d7dee6;
+  --blueprint: #2f5c7c;
+  --signal: #c27a1e;
+  --signal-ink: #5c3c0f;
+  --action: #0e8074;
+  --action-ink: #ffffff;
+  --void: #05080e;
+  --grid-line: rgba(14, 26, 43, 0.055);
+  color-scheme: light;
 }
 
 * {
@@ -131,9 +139,9 @@ body {
   margin: 0;
   background: var(--paper);
   background-image:
-    linear-gradient(var(--line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--line) 1px, transparent 1px);
-  background-size: 28px 28px;
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 96px 96px;
   background-position: -1px -1px;
   color: var(--ink);
   font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
@@ -154,7 +162,7 @@ a {
 }
 
 :focus-visible {
-  outline: 2px solid var(--signal);
+  outline: 2px solid var(--action);
   outline-offset: 2px;
 }
 
@@ -227,6 +235,38 @@ a {
   border-color: var(--blueprint);
 }
 
+/* ---- Module tabs ---- */
+
+.module-tabs {
+  display: flex;
+  gap: 1.5rem;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 1.5rem;
+}
+
+.tab-button {
+  font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 0.92rem;
+  background: transparent;
+  color: var(--slate);
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0.6rem 0.1rem;
+  margin: 0 0 -1px;
+  cursor: pointer;
+}
+
+.tab-button:hover {
+  background: transparent;
+  color: var(--ink);
+}
+
+.tab-button.active {
+  color: var(--ink);
+  border-bottom-color: var(--action);
+}
+
 /* ---- Modules ---- */
 
 .module {
@@ -234,30 +274,11 @@ a {
 }
 
 .module-head {
-  display: flex;
-  align-items: baseline;
-  gap: 0.75rem;
   margin-bottom: 1rem;
-}
-
-.module-number {
-  font-family: "IBM Plex Mono", ui-monospace, monospace;
-  font-size: 0.85rem;
-  color: var(--blueprint);
-  border: 1px solid var(--line);
-  background: var(--surface);
-  padding: 0.1rem 0.4rem;
 }
 
 .module-head h2 {
   font-size: 1.1rem;
-}
-
-.module-link {
-  width: 1px;
-  height: 1.5rem;
-  background: var(--line);
-  margin: -1rem 0 1rem 0.95rem;
 }
 
 .module-form {
@@ -293,16 +314,16 @@ button {
   font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   font-weight: 600;
   font-size: 0.9rem;
-  border: 1px solid var(--ink);
-  background: var(--signal);
-  color: #1c1300;
+  border: 1px solid var(--action);
+  background: var(--action);
+  color: var(--action-ink);
   padding: 0.55rem 1rem;
   cursor: pointer;
   align-self: flex-start;
 }
 
 button:hover {
-  background: color-mix(in srgb, var(--signal) 88%, black);
+  background: color-mix(in srgb, var(--action) 85%, black);
 }
 
 button.secondary {
@@ -420,7 +441,7 @@ button.secondary:hover {
 }
 
 .frame.has-image {
-  background: var(--ink);
+  background: var(--void);
 }
 
 /* ---- Footer ---- */
@@ -434,7 +455,7 @@ button.secondary:hover {
 }
 
 .disclosure strong {
-  color: var(--signal-ink);
+  color: var(--signal);
   font-weight: 600;
 }
 

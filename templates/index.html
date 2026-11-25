@@ -21,10 +21,14 @@
       </p>
     </header>
 
+    <nav class="module-tabs" role="tablist">
+      <button type="button" class="tab-button active" id="tab-detect" role="tab" aria-selected="true" aria-controls="panel-detect">01 — Tespit</button>
+      <button type="button" class="tab-button" id="tab-swap" role="tab" aria-selected="false" aria-controls="panel-swap">02 — Değiştirme</button>
+    </nav>
+
     <main>
-      <section class="module" aria-labelledby="module-1-title">
+      <section class="module" id="panel-detect" role="tabpanel" aria-labelledby="tab-detect module-1-title">
         <div class="module-head">
-          <span class="module-number">01</span>
           <h2 id="module-1-title">Yüz Tespiti &amp; Landmark</h2>
         </div>
 
@@ -53,11 +57,8 @@
         </div>
       </section>
 
-      <div class="module-link" aria-hidden="true"></div>
-
-      <section class="module" aria-labelledby="module-2-title">
+      <section class="module" id="panel-swap" role="tabpanel" aria-labelledby="tab-swap module-2-title" hidden>
         <div class="module-head">
-          <span class="module-number">02</span>
           <h2 id="module-2-title">Yüz Değiştirme</h2>
         </div>
 
