@@ -12,7 +12,16 @@
     <button type="submit">Tespit Et</button>
   </form>
   <p id="status"></p>
-  <img id="result-image" alt="" hidden>
+  <div class="before-after">
+    <figure>
+      <figcaption>Önce</figcaption>
+      <img id="original-image" alt="" hidden>
+    </figure>
+    <figure>
+      <figcaption>Sonra</figcaption>
+      <img id="result-image" alt="" hidden>
+    </figure>
+  </div>
 
   <hr>
   <h2>Yüz Değiştirme</h2>
@@ -23,7 +32,16 @@
     <button type="submit">Değiştir</button>
   </form>
   <p id="swap-status"></p>
-  <img id="swap-result-image" alt="" hidden>
+  <div class="before-after">
+    <figure>
+      <figcaption>Önce</figcaption>
+      <img id="swap-original-image" alt="" hidden>
+    </figure>
+    <figure>
+      <figcaption>Sonra</figcaption>
+      <img id="swap-result-image" alt="" hidden>
+    </figure>
+  </div>
 
   <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>

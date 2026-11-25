@@ -5,11 +5,22 @@ body {
   padding: 0 1rem;
 }
 
-#result-image,
-#swap-result-image {
-  max-width: 100%;
+.before-after {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
   margin-top: 1rem;
+}
+
+.before-after figure {
+  margin: 0;
+}
+
+.before-after img {
+  max-width: 100%;
+  width: 300px;
   border: 1px solid #ccc;
+  display: block;
 }
 
 hr {
