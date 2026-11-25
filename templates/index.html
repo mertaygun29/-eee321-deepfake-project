@@ -2,45 +2,100 @@
 <html lang="tr">
 <head>
   <meta charset="utf-8">
-  <title>EEE 321 - Yüz Landmark Tespiti</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EEE 321 · Yüz Sinyal Laboratuvarı</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <h1>Yüz Tespiti &amp; Landmark Önizleme</h1>
-  <form id="upload-form">
-    <input type="file" id="image-input" name="image" accept="image/png, image/jpeg" required>
-    <button type="submit">Tespit Et</button>
-  </form>
-  <p id="status"></p>
-  <div class="before-after">
-    <figure>
-      <figcaption>Önce</figcaption>
-      <img id="original-image" alt="" hidden>
-    </figure>
-    <figure>
-      <figcaption>Sonra</figcaption>
-      <img id="result-image" alt="" hidden>
-    </figure>
-  </div>
+  <div class="page">
+    <header class="masthead">
+      <div class="masthead-row">
+        <h1>EEE 321 · Yüz Sinyal Laboratuvarı</h1>
+        <span class="status-dot" aria-hidden="true"></span>
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Koyu temaya geç">☾</button>
+      </div>
+      <p class="masthead-sub">
+        Yüz tespiti, landmark çıkarımı ve yüz değiştirme üzerine kurulu bir
+        DSP demo hattı. İki modül, aynı boru hattının art arda gelen
+        aşamaları.
+      </p>
+    </header>
 
-  <hr>
-  <h2>Yüz Değiştirme</h2>
-  <form id="swap-form">
-    <label>Kaynak yüz: <input type="file" id="source-input" name="source" accept="image/png, image/jpeg" required></label><br>
-    <label>Hedef görsel: <input type="file" id="target-input" name="target" accept="image/png, image/jpeg" required></label><br>
-    <button type="button" id="swap-inputs-button">⇄ Kaynak / Hedef Yerini Değiştir</button>
-    <button type="submit">Değiştir</button>
-  </form>
-  <p id="swap-status"></p>
-  <div class="before-after">
-    <figure>
-      <figcaption>Önce</figcaption>
-      <img id="swap-original-image" alt="" hidden>
-    </figure>
-    <figure>
-      <figcaption>Sonra</figcaption>
-      <img id="swap-result-image" alt="" hidden>
-    </figure>
+    <main>
+      <section class="module" aria-labelledby="module-1-title">
+        <div class="module-head">
+          <span class="module-number">01</span>
+          <h2 id="module-1-title">Yüz Tespiti &amp; Landmark</h2>
+        </div>
+
+        <form id="upload-form" class="module-form">
+          <label>
+            Fotoğraf
+            <input type="file" id="image-input" name="image" accept="image/png, image/jpeg" required>
+          </label>
+          <div class="form-actions">
+            <button type="submit">Tespit Et</button>
+          </div>
+        </form>
+
+        <p id="status" class="status-line"></p>
+        <dl id="readout" class="readout" hidden></dl>
+
+        <div class="before-after">
+          <figure>
+            <div class="frame" id="original-frame"><img id="original-image" alt="" hidden></div>
+            <figcaption>Önce</figcaption>
+          </figure>
+          <figure>
+            <div class="frame" id="result-frame"><img id="result-image" alt="" hidden></div>
+            <figcaption>Sonra</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <div class="module-link" aria-hidden="true"></div>
+
+      <section class="module" aria-labelledby="module-2-title">
+        <div class="module-head">
+          <span class="module-number">02</span>
+          <h2 id="module-2-title">Yüz Değiştirme</h2>
+        </div>
+
+        <form id="swap-form" class="module-form">
+          <label>
+            Kaynak yüz
+            <input type="file" id="source-input" name="source" accept="image/png, image/jpeg" required>
+          </label>
+          <label>
+            Hedef görsel
+            <input type="file" id="target-input" name="target" accept="image/png, image/jpeg" required>
+          </label>
+          <div class="form-actions">
+            <button type="button" id="swap-inputs-button" class="secondary">⇄ Yerini değiştir</button>
+            <button type="submit">Değiştir</button>
+          </div>
+        </form>
+
+        <p id="swap-status" class="status-line"></p>
+        <dl id="swap-readout" class="readout" hidden></dl>
+
+        <div class="before-after">
+          <figure>
+            <div class="frame" id="swap-original-frame"><img id="swap-original-image" alt="" hidden></div>
+            <figcaption>Önce</figcaption>
+          </figure>
+          <figure>
+            <div class="frame" id="swap-result-frame"><img id="swap-result-image" alt="" hidden></div>
+            <figcaption>Sonra</figcaption>
+          </figure>
+        </div>
+      </section>
+    </main>
+
+    <footer class="disclosure">
+      Bu sistemin ürettiği yüz değiştirme çıktıları <strong>sentetiktir</strong>
+      ve her birinde görünür bir "AI GENERATED" filigranı bulunur.
+    </footer>
   </div>
 
   <script src="{{ url_for('static', filename='script.js') }}"></script>
