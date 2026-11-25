@@ -38,3 +38,24 @@ by our script** — InsightFace downloads it itself, automatically, to
 a `/swap` request on a given machine. Expect the first swap request on each
 machine to be slower and to need internet access; after that it's cached
 locally and instant.
+
+## Lip sync (Wav2Lip) — a separate, git-ignored vendor directory
+
+Unlike the other models, Wav2Lip's source code is not pip-installable and
+its GitHub repo has no declared license, so it is never committed here —
+it's cloned locally into `vendor/wav2lip/` (git-ignored) with its own
+virtual environment, kept separate from this project's own `.venv` to
+avoid dependency collisions.
+
+Run once per machine:
+
+```powershell
+python scripts/setup_lipsync.py
+```
+
+This clones `Rudrabha/Wav2Lip` at a pinned commit, applies two small
+compatibility patches (a `librosa` keyword-argument change and a removed
+`numpy` type alias), creates `vendor/wav2lip/.venv/`, installs its
+dependencies there (including a CUDA build of `torch`), and downloads
+`wav2lip_gan.pth` (~415 MB) from a HuggingFace mirror. Also requires
+`ffmpeg` on `PATH` (see root `README.md`).
