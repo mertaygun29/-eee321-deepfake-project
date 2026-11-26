@@ -1,6 +1,6 @@
 # EEE 321 DSP Project — AI-Based Deepfake Interaction System for Entertainment
 
-Solo course project (Topic 4). Design spec:
+Course project (Topic 4). Design spec:
 `docs/superpowers/specs/2026-11-24-deepfake-interaction-system-design.md`.
 Phase 1 plan: `docs/superpowers/plans/2026-11-24-phase1-face-detection-landmarks.md`.
 Phase 2 plan: `docs/superpowers/plans/2026-11-24-phase2-face-swap.md`.
